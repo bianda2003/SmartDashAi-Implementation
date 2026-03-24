@@ -307,7 +307,10 @@ def render_sidebar_controls(df, data_model):
 # =================================================
 # KPI RENDERING
 # =================================================
+
+
 def render_kpis(filtered_df, engine):
+    st.markdown("---")
     selected_kpis = st.session_state.get("selected_kpis", [])
 
     if not selected_kpis:
