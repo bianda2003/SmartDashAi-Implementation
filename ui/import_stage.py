@@ -54,11 +54,19 @@ def load_user_data(uploaded_file):
 
 def generate_sample_data():
     """
-    Generates multi-year demo dataset for testing & demo purposes.
+    Generates realistic multi-year dataset with:
+    - Seasonality
+    - Noise
+    - Multiple categories
+    - Non-perfect patterns (prevents 100% accuracy)
     """
+
+    import numpy as np
+    import pandas as pd
+
     np.random.seed(42)
 
-    dates = pd.date_range(start="2023-01-01", end="2024-12-31", freq="D")
+    dates = pd.date_range(start="2022-01-01", end="2024-12-31", freq="D")
 
     products = [
         ("Laptop", "Electronics", 1200, 900),
@@ -70,35 +78,59 @@ def generate_sample_data():
     ]
 
     regions = ["North", "South", "East", "West"]
+
     rows = []
 
     for date in dates:
-        for _ in range(np.random.randint(3, 8)):
-            product, category, unit_price, unit_cost = products[
+        for _ in range(np.random.randint(3, 7)):
+
+            product, category, base_price, base_cost = products[
                 np.random.randint(len(products))
             ]
 
+            region = np.random.choice(regions)
+
+            # 🔥 SEASONALITY (monthly pattern)
+            seasonal_factor = 1 + 0.2 * np.sin(2 * np.pi * date.month / 12)
+
+            # 🔥 RANDOM NOISE
+            noise_factor = np.random.normal(1, 0.15)
+
+            # 🔥 TREND (slow growth)
+            trend_factor = 1 + (date.year - 2022) * 0.05
+
             qty = np.random.randint(1, 10)
-            sales = qty * unit_price
-            cost = qty * unit_cost
+
+            price = base_price * seasonal_factor * noise_factor * trend_factor
+            cost = base_cost * seasonal_factor * noise_factor
+
+            sales = qty * price
+            cost_total = qty * cost
+            profit = sales - cost_total
 
             rows.append({
                 "Date": date,
                 "Product": product,
                 "Category": category,
-                "Region": np.random.choice(regions),
+                "Region": region,
                 "Quantity": qty,
-                "Unit_Price": unit_price,
-                "Unit_Cost": unit_cost,
-                "Sales_Amount": sales,
-                "Cost_Amount": cost,
-                "Profit": sales - cost,
+                "Unit_Price": round(price, 2),
+                "Unit_Cost": round(cost, 2),
+                "Sales": round(sales, 2),
+                "Cost": round(cost_total, 2),
+                "Profit": round(profit, 2),
             })
 
     df = pd.DataFrame(rows)
 
+    # 👇 Keep your existing pipeline
+    from core.profiler import DataProfiler
+
     profiler = DataProfiler()
+
     st.session_state.df = df
     st.session_state.profile_df = profiler.profile(df)
     st.session_state.app_stage = "model"
+
+    st.success("✅ Realistic dataset generated (with noise & seasonality)")
     st.rerun()

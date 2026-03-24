@@ -7,7 +7,12 @@ from core.analytics_engine import AnalyticsEngine
 from core.forecast_engine import ForecastEngine
 from core.chat_engine import ChatEngine
 
-
+from core.ml_engine import (
+    prepare_ml_data,
+    check_data_health,
+    evaluate_model,
+    train_final_model
+)
 
 
 from core.analytics_engine import AnalyticsEngine
@@ -144,7 +149,7 @@ def render_data_health(filtered_df, data_model):
 # =================================================
 def render_forecasting(filtered_df, data_model):
     """
-    Neural-network-based forecasting with explainability.
+    Smart Forecasting with Accuracy Validation
     """
 
     st.markdown("---")
@@ -176,12 +181,61 @@ def render_forecasting(filtered_df, data_model):
             value=6
         )
 
-        generate = st.button("Generate Forecast" , key="generate_forecast_btn")
+        # ---------------------------------------
+        # STEP 1: Accuracy Check (FIXED)
+        # ---------------------------------------
+        try:
+            X, y = prepare_ml_data(
+                filtered_df,
+                data_model.measures[target]["column"]
+            )
 
+            health = check_data_health(X)
+
+            if not health["valid"]:
+                st.error(f"❌ {health['reason']}")
+                return
+
+            st.subheader("📊 Accuracy Check")
+
+            acc_result = evaluate_model(X, y)
+
+            st.write(f"Train Accuracy: {acc_result['train_acc']}%")
+            st.write(f"Test Accuracy: {acc_result['test_acc']}%")
+            st.write(f"R² Score: {acc_result['r2']}")
+
+            # 🚨 Detect fake 100%
+            if acc_result["test_acc"] > 98:
+                st.warning("⚠️ Suspiciously high accuracy — possible low variance or leakage")
+
+            if acc_result["overfit"]:
+                st.warning("⚠️ Overfitting detected")
+            else:
+                st.success("✅ Model is reliable")
+
+        except Exception as e:
+            st.error(f"Accuracy Error: {e}")
+            return
+
+        # ---------------------------------------
+        # STEP 2: Generate Button
+        # ---------------------------------------
+        generate = st.button("🚀 Generate Forecast")
+
+    # ---------------------------------------
+    # STEP 3: Forecast Execution
+    # ---------------------------------------
     if generate:
+
+        # 🚨 Block bad models
+        if acc_result["test_acc"] < 60:
+            st.error("❌ Forecast blocked due to low accuracy")
+            return
+
         with c2:
             try:
                 with st.spinner("Training Neural Network (MLP)..."):
+
                     forecaster = ForecastEngine(
                         filtered_df,
                         date_col,
@@ -339,12 +393,16 @@ def render_time_performance(filtered_df, data_model):
 
     st.markdown("---")
 
-    # Prefer Sales, fallback to first measure
-    target_measure = (
-        "Sales" if "Sales" in data_model.measures
-        else list(data_model.measures.keys())[0]
-    )
-    measure_col = data_model.measures[target_measure]["column"]
+    col_sel1, col_sel2 = st.columns([1, 2])
+    with col_sel1:
+        target_measure_name = st.selectbox(
+            "Metric to evaluate (YTD/MTD)",
+            options=list(data_model.measures.keys()),
+            index=list(data_model.measures.keys()).index("Sales") if "Sales" in data_model.measures else 0,
+            key="time_perf_measure"
+        )
+    
+    measure_col = data_model.measures[target_measure_name]["column"]
 
     analytics = AnalyticsEngine(filtered_df, data_model)
 
@@ -355,7 +413,7 @@ def render_time_performance(filtered_df, data_model):
             filtered_df, date_col, measure_col
         )
 
-        st.subheader(f"📈 {target_measure} Performance")
+        st.subheader(f"📈 {target_measure_name} Performance")
 
         st.markdown("---")
 
@@ -364,10 +422,10 @@ def render_time_performance(filtered_df, data_model):
         
 
         with c1:
-            st.metric(f"📆 YTD {target_measure}", f"{ytd:,.2f}")
+            st.metric(f"📆 YTD {target_measure_name}", f"{ytd:,.2f}")
 
         with c2:
-            st.metric(f"🗓️ MTD {target_measure}", f"{mtd:,.2f}")
+            st.metric(f"🗓️ MTD {target_measure_name}", f"{mtd:,.2f}")
 
         with c3:
             if (
@@ -408,50 +466,37 @@ def render_product_performance(filtered_df, data_model):
         st.info("No dimension available for performance analysis.")
         return
 
-    dimension = (
-        "Product" if "Product" in data_model.dimensions
-        else data_model.dimensions[0]
-    )
+    c_sel1, c_sel2 = st.columns(2)
+    with c_sel1:
+        dimension = st.selectbox(
+            "Product Category / Dimension",
+            options=data_model.dimensions,
+            index=data_model.dimensions.index("Product") if "Product" in data_model.dimensions else 0,
+            key="product_perf_dim"
+        )
+    
+    with c_sel2:
+        valid_measures = [
+            k for k, v in data_model.measures.items()
+            if pd.api.types.is_numeric_dtype(filtered_df[v["column"]])
+        ]
+        if not valid_measures:
+            st.info("No numeric measure available.")
+            return
 
-    # Select numeric measures
-    numeric_measures = [
-        meta["column"]
-        for meta in data_model.measures.values()
-        if pd.api.types.is_numeric_dtype(filtered_df[meta["column"]])
-    ]
+        target_measure = st.selectbox(
+            "Performance Metric",
+            options=valid_measures,
+            index=valid_measures.index("Sales") if "Sales" in valid_measures else 0,
+            key="product_perf_measure"
+        )
 
-    priority = ["sales", "profit", "quantity"]
+    measure_col = data_model.measures[target_measure]["column"]
 
-    selected = sorted(
-        numeric_measures,
-        key=lambda x: any(p in x.lower() for p in priority),
-        reverse=True
-    )[:3]
+    # Aggregate
+    agg = filtered_df.groupby(dimension)[measure_col].sum().reset_index()
 
-    if len(selected) < 2:
-        st.info("Not enough numeric measures to compute performance.")
-        return
-
-    # Weighting logic (business-friendly)
-    weights = {}
-    for col in selected:
-        if "sales" in col.lower():
-            weights[col] = 0.5
-        elif "profit" in col.lower():
-            weights[col] = 0.4
-        elif "quantity" in col.lower():
-            weights[col] = 0.1
-        else:
-            weights[col] = 1 / len(selected)
-
-    # Aggregate & normalize
-    agg = filtered_df.groupby(dimension)[selected].sum().reset_index()
-
-    score = 0
-    for col in selected:
-        score += (agg[col] / agg[col].max()) * weights[col]
-
-    agg["Performance_Score"] = score.round(3)
+    agg["Performance_Score"] = agg[measure_col].round(3)
     agg = agg.sort_values("Performance_Score", ascending=False)
 
     c1, c2 = st.columns([2, 1])
@@ -558,12 +603,14 @@ def render_smart_charts(df, engine, data_model):
             df, x_metric, y_metric, dim
         )
 
+        scatter_df["_point_size"] = scatter_df[col_y].abs()
+
         fig = px.scatter(
             scatter_df,
             x=col_x,
             y=col_y,
             color=dim,
-            size=col_y,
+            size="_point_size",
             hover_name=dim,
         )
 
