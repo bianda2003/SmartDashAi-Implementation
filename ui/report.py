@@ -334,6 +334,8 @@ def render_time_performance(filtered_df, data_model):
 
     date_col = data_model.date_fields[0]
 
+    st.markdown("---")
+
     # Prefer Sales, fallback to first measure
     target_measure = (
         "Sales" if "Sales" in data_model.measures
@@ -352,7 +354,11 @@ def render_time_performance(filtered_df, data_model):
 
         st.subheader(f"📈 {target_measure} Performance")
 
+        st.markdown("---")
+
         c1, c2, c3 = st.columns([1, 1, 2])
+        
+        
 
         with c1:
             st.metric(f"📆 YTD {target_measure}", f"{ytd:,.2f}")
