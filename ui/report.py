@@ -19,6 +19,8 @@ from core.analytics_engine import AnalyticsEngine
 
 
 def render_report_stage():
+
+    
     """
     STAGE 3 — ANALYTICS REPORT & DASHBOARD
 

@@ -19,7 +19,12 @@ def render_modeling_stage():
     - All outputs are stored in st.session_state for downstream stages
     """
 
-    st.title("Data Intelligence & Cleansing")
+
+    st.markdown("""
+    <h1 style="font-size: 48px; margin-bottom: 20px;">
+        Data Intelligence & <span style="color: #a855f7;">Cleansing</span>
+    </h1>
+    """, unsafe_allow_html=True)
 
     # ---------------------------------------------
     # Load required session data

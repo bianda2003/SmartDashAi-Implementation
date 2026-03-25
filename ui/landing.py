@@ -1,16 +1,18 @@
 import streamlit as st
 
+
+# ================================
+# LOAD CSS
+# ================================
 def load_css():
     st.markdown("""
     <style>
 
-    /* ---------- CONTAINER WIDTH ---------- */
     .main-container {
         max-width: 900px;
         margin: auto;
     }
 
-    /* ---------- TITLE ---------- */
     .title-main {
         text-align: center;
         font-size: 80px;
@@ -21,31 +23,21 @@ def load_css():
         color: #a855f7;
     }
 
-    /* ---------- TYPING ---------- */
     .typing-container {
         display: flex;
         justify-content: center;
         align-items: center;
-        margin-top: 0;
+        margin-bottom: 10px;
     }
 
     .typing {
         font-size: 36px;
         color: #cbd5e1;
-
-        margin: 0;
-        padding: 0;
-        line-height: 1.2;
-
         white-space: nowrap;
         overflow: hidden;
-
         border-right: 3px solid #a855f7;
-
         display: inline-block;
-
         width: 0;
-
         animation: typing 6s steps(34, end) forwards, blink 1s infinite;
     }
 
@@ -58,18 +50,15 @@ def load_css():
         50% { border-color: transparent }
     }
 
-    /* ---------- FLOW TEXT ---------- */
     .flow-text {
         text-align: center;
+        color: #a855f7;
         font-size: 24px;
         margin-top: 10px;
+        margin-bottom: 60px;
         font-weight: 500;
-        background: linear-gradient(90deg, #a855f7, #38bdf8);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
     }
 
-    /* ---------- CARD ---------- */
     .card {
         background: rgba(30, 41, 59, 0.6);
         backdrop-filter: blur(12px);
@@ -89,30 +78,29 @@ def load_css():
     }
 
     .card-title {
-        font-size: 22px;
+        font-size: 32px;
         font-weight: 600;
         margin-top: 8px;
     }
 
-    /* ---------- BUTTON ---------- */
-    .stButton>button {
-        width: 240px;
-        height: 55px;
+    /* BUTTON STYLE */
+    .stButton > button {
+        width: 100%;
+        height: 60px;
         border-radius: 14px;
-        font-size: 18px;
-        font-weight: 600;
+        font-size: 30px;
+        font-weight: 700;
 
         background: rgba(168, 85, 247, 0.15);
         border: 1px solid rgba(168, 85, 247, 0.4);
 
         backdrop-filter: blur(10px);
-
         box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
 
         transition: all 0.3s ease;
     }
 
-    .stButton>button:hover {
+    .stButton > button:hover {
         background: rgba(168, 85, 247, 0.3);
         box-shadow: 0 0 35px rgba(168, 85, 247, 0.9);
         transform: scale(1.05);
@@ -126,6 +114,8 @@ def load_css():
 # LANDING PAGE
 # ================================
 def render_landing():
+
+    load_css()
 
     st.markdown('<div class="main-container">', unsafe_allow_html=True)
 
@@ -145,7 +135,7 @@ def render_landing():
     </div>
     """, unsafe_allow_html=True)
 
-    # ---------- FLOW TEXT ----------
+    # ---------- FLOW ----------
     st.markdown("""
     <div class="flow-text">
         Upload Data → Analyze → Forecast → Decide
@@ -158,7 +148,7 @@ def render_landing():
     with col1:
         st.markdown("""
         <div class="card">
-            <div class="card-title">📊 Auto Dashboard</div>
+            <div class="card-title">Auto Dashboard</div>
             <div>Generate insights instantly</div>
         </div>
         """, unsafe_allow_html=True)
@@ -166,7 +156,7 @@ def render_landing():
     with col2:
         st.markdown("""
         <div class="card">
-            <div class="card-title">🧠 Data Health AI</div>
+            <div class="card-title">Data Health AI</div>
             <div>Evaluate data quality</div>
         </div>
         """, unsafe_allow_html=True)
@@ -174,19 +164,21 @@ def render_landing():
     with col3:
         st.markdown("""
         <div class="card">
-            <div class="card-title">📈 Smart Forecasting</div>
+            <div class="card-title">Smart Forecasting</div>
             <div>Predict future trends</div>
         </div>
         """, unsafe_allow_html=True)
 
     st.markdown("<br><br>", unsafe_allow_html=True)
 
-    # ---------- BUTTON ----------
-    col1, col2, col3 = st.columns([1, 1, 1])
+    # ---------- CENTERED BUTTON ----------
+    col1, col2, col3 = st.columns([3, 2, 3])
 
     with col2:
-        if st.button("🚀 Get Started"):
+        if st.button("Get Started", use_container_width=True, key="get_started_btn"):
             st.session_state.app_stage = "import"
             st.rerun()
 
     st.markdown('</div>', unsafe_allow_html=True)
+
+

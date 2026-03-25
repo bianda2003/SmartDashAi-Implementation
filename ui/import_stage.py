@@ -14,8 +14,17 @@ def render_import_stage():
     - Transition to modeling stage
     """
 
-    st.title("📂 Import Data")
-    st.markdown("Upload your dataset (CSV) to get started.")
+    st.markdown("""
+        <h1 style="font-size: 48px; margin-bottom: 6px;">
+            📂 Import <span style="color: #a855f7;">DATA</span>
+        </h1>
+        """, unsafe_allow_html=True)
+
+    st.markdown("""
+        <p style="color: #cbd5e1; font-size: 16px;">
+            Upload your dataset (CSV) to get started.
+        </p>
+        """, unsafe_allow_html=True)
 
     if st.button("Generate Multi-Year Sample Data"):
         generate_sample_data()
