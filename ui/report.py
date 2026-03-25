@@ -34,7 +34,19 @@ def render_report_stage():
     - Forecasting, Data Health & Chat are handled separately
     """
 
-    st.title("SmartDashAI Report")
+    st.markdown("""
+    <h1 id="top-title" style="margin:0; font-size:58px; font-weight:700;">
+        <span style="color:#a855f7;">Smart</span>Dash<span style="color:#a855f7;">AI</span> <span style="color:#a855f7;">Report</span>
+    </h1>
+
+    <script>
+    setTimeout(function() {
+        window.scrollTo(0, 0);
+    }, 100);
+    </script>
+    """, unsafe_allow_html=True)
+
+    
 
     # ---------------------------------------------
     # Load session data
