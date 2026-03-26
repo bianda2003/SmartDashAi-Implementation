@@ -35,6 +35,7 @@ footer {
 
 </style>
 """, unsafe_allow_html=True)
+st.set_page_config(layout="wide")
 # ================================
 # PAGE CONFIG (ONLY HERE)
 # ================================
