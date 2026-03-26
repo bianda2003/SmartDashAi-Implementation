@@ -5,37 +5,8 @@ from ui.import_stage import render_import_stage
 from ui.modeling import render_modeling_stage
 from ui.preview import render_preview_stage
 from ui.report import render_report_stage
-st.markdown("""
-<style>
 
-/* Hide entire header */
-header {
-    visibility: hidden;
-}
 
-/* Remove toolbar completely */
-[data-testid="stToolbar"] {
-    display: none !important;
-}
-
-/* Remove hamburger menu */
-#MainMenu {
-    visibility: hidden;
-}
-
-/* Remove footer */
-footer {
-    visibility: hidden;
-}
-
-/* Remove top padding */
-.block-container {
-    padding-top: 1rem;
-}
-
-</style>
-""", unsafe_allow_html=True)
-st.set_page_config(layout="wide")
 # ================================
 # PAGE CONFIG (ONLY HERE)
 # ================================
