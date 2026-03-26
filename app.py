@@ -5,7 +5,21 @@ from ui.import_stage import render_import_stage
 from ui.modeling import render_modeling_stage
 from ui.preview import render_preview_stage
 from ui.report import render_report_stage
+st.markdown("""
+<style>
 
+/* Hide ONLY right-side toolbar actions */
+[data-testid="stToolbar"] > div:nth-child(2) {
+    display: none !important;
+}
+
+/* Keep sidebar toggle */
+[data-testid="stSidebarCollapsedControl"] {
+    display: block !important;
+}
+
+</style>
+""", unsafe_allow_html=True)
 
 # ================================
 # PAGE CONFIG (ONLY HERE)
