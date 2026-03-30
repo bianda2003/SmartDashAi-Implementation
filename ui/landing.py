@@ -1,9 +1,9 @@
 import streamlit as st
 
 
-# ================================
+
 # LOAD CSS
-# ================================
+
 def load_css():
     st.markdown("""
     <style>
@@ -110,23 +110,23 @@ def load_css():
     """, unsafe_allow_html=True)
 
 
-# ================================
+
 # LANDING PAGE
-# ================================
+
 def render_landing():
 
     load_css()
 
     st.markdown('<div class="main-container">', unsafe_allow_html=True)
 
-    # ---------- TITLE ----------
+    #  TITLE 
     st.markdown("""
     <div class="title-main">
         <span class="title-purple">Smart</span>Dash<span class="title-purple">AI</span>
     </div>
     """, unsafe_allow_html=True)
 
-    # ---------- SUBTITLE ----------
+    # SUBTITLE 
     st.markdown("""
     <div class="typing-container">
         <div class="typing">
@@ -135,14 +135,14 @@ def render_landing():
     </div>
     """, unsafe_allow_html=True)
 
-    # ---------- FLOW ----------
+    #FLOW 
     st.markdown("""
     <div class="flow-text">
         Upload Data → Analyze → Forecast → Decide
     </div>
     """, unsafe_allow_html=True)
 
-    # ---------- CARDS ----------
+    # CARDS
     col1, col2, col3 = st.columns(3)
 
     with col1:
@@ -171,7 +171,6 @@ def render_landing():
 
     st.markdown("<br><br>", unsafe_allow_html=True)
 
-    # ---------- CENTERED BUTTON ----------
     col1, col2, col3 = st.columns([3, 2, 3])
 
     with col2:

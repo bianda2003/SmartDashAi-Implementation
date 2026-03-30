@@ -48,17 +48,17 @@ def render_report_stage():
 
     
 
-    # ---------------------------------------------
+
     # Load session data
-    # ---------------------------------------------
+
     df = st.session_state.df
     data_model = st.session_state.data_model
 
     engine = AnalyticsEngine(df, data_model)
 
-    # =============================================
-    # SIDEBAR — REPORT CONTROLS
-    # =============================================
+
+    # SIDEBAR 
+
     active_filters = render_sidebar_controls(df, data_model)
 
     # Apply filters
@@ -83,9 +83,9 @@ def render_report_stage():
 
 
 
-# =================================================
-# DATA HEALTH (Forecast Readiness)
-# =================================================
+
+# DATA HEALTH 
+
 def render_data_health(filtered_df, data_model):
     """
     Evaluates whether the dataset is suitable for forecasting
@@ -158,9 +158,9 @@ def render_data_health(filtered_df, data_model):
     except Exception as e:
         st.error(f"Data Health Error: {e}")
 
-# =================================================
+
 # FORECASTING (MLP + Explainability)
-# =================================================
+
 def render_forecasting(filtered_df, data_model):
     """
     Smart Forecasting with Accuracy Validation
@@ -195,9 +195,9 @@ def render_forecasting(filtered_df, data_model):
             value=6
         )
 
-        # ---------------------------------------
-        # STEP 1: Accuracy Check (FIXED)
-        # ---------------------------------------
+      
+        # STEP 1: Accuracy Check
+   
         try:
             X, y = prepare_ml_data(
                 filtered_df,
@@ -231,14 +231,14 @@ def render_forecasting(filtered_df, data_model):
             st.error(f"Accuracy Error: {e}")
             return
 
-        # ---------------------------------------
+        
         # STEP 2: Generate Button
-        # ---------------------------------------
+    
         generate = st.button("🚀 Generate Forecast")
 
-    # ---------------------------------------
+   
     # STEP 3: Forecast Execution
-    # ---------------------------------------
+  
     if generate:
 
         # 🚨 Block bad models
@@ -302,9 +302,9 @@ def render_forecasting(filtered_df, data_model):
                 st.error(f"Forecasting Error: {e}")
 
 
-# =================================================
+
 # SIDEBAR CONTROLS
-# =================================================
+
 def render_sidebar_controls(df, data_model):
     st.sidebar.title("🛠️ Report Settings")
 
@@ -333,9 +333,9 @@ def render_sidebar_controls(df, data_model):
 
     st.sidebar.markdown("---")
 
-    # -------------------------------
+
     # Category Filters
-    # -------------------------------
+
     st.sidebar.subheader("2️ Category Filters")
     filters = {}
 
@@ -345,9 +345,9 @@ def render_sidebar_controls(df, data_model):
 
     st.sidebar.markdown("---")
 
-    # -------------------------------
+  
     # Numeric Range Filters
-    # -------------------------------
+ 
     st.sidebar.subheader("3️ Value Ranges")
 
     for measure in selected_kpis:
@@ -372,10 +372,8 @@ def render_sidebar_controls(df, data_model):
     return filters
 
 
-# =================================================
-# KPI RENDERING
-# =================================================
 
+# KPI 
 
 def render_kpis(filtered_df, engine):
     st.markdown("---")
@@ -392,9 +390,9 @@ def render_kpis(filtered_df, engine):
         val = kpi_values.get(kpi, 0)
         cols[i].metric(kpi, f"{val:,.2f}")
 
-# =================================================
-# TIME INTELLIGENCE — YTD / MTD
-# =================================================
+
+# TIME CHART — YTD / MTD
+
 def render_time_performance(filtered_df, data_model):
     """
     Renders YTD / MTD KPIs and YTD comparison chart
@@ -464,9 +462,9 @@ def render_time_performance(filtered_df, data_model):
         st.warning(f"Time performance skipped: {e}")
 
 
-    # =================================================
+
 # PRODUCT PERFORMANCE SCORE
-# =================================================
+
 def render_product_performance(filtered_df, data_model):
     """
     Computes and visualizes product performance using
@@ -534,9 +532,9 @@ def render_product_performance(filtered_df, data_model):
 
 
 
-# =================================================
-# SMART CHARTS
-# =================================================
+
+# CHARTS
+
 def render_smart_charts(df, engine, data_model):
     tab1, tab2, tab3 = st.tabs(
         ["📦 Categorical Analysis", "📈 Trend Analysis", "🔗 Correlation"]
@@ -565,9 +563,9 @@ def render_smart_charts(df, engine, data_model):
 
             st.plotly_chart(fig, use_container_width=True)
 
-    # -------------------------------
+
     # TREND ANALYSIS
-    # -------------------------------
+
     with tab2:
         if not data_model.date_fields:
             st.warning("No date field available for trend analysis.")
@@ -596,9 +594,8 @@ def render_smart_charts(df, engine, data_model):
 
             st.plotly_chart(fig, use_container_width=True)
 
-    # -------------------------------
     # CORRELATION ANALYSIS
-    # -------------------------------
+
     with tab3:
         c1, c2, c3 = st.columns(3)
 
@@ -630,9 +627,8 @@ def render_smart_charts(df, engine, data_model):
 
         st.plotly_chart(fig, use_container_width=True)
 
-        # =================================================
 # AI DATA ASSISTANT
-# =================================================
+
 def render_chat_assistant(filtered_df):
     """
     Conversational interface for querying dataset insights.
@@ -642,18 +638,17 @@ def render_chat_assistant(filtered_df):
     st.markdown("---")
     st.subheader("AI Data Assistant")
 
-    # -----------------------------
+
     # Session state initialization
-    # -----------------------------
+
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
 
     if "chat_buffer" not in st.session_state:
         st.session_state.chat_buffer = ""
 
-    # -----------------------------
     # Submit handler
-    # -----------------------------
+
     def submit_chat():
         user_input = st.session_state.chat_buffer.strip()
 
@@ -674,9 +669,8 @@ def render_chat_assistant(filtered_df):
         # ✅ Clear INTERNAL buffer (NOT widget key)
         st.session_state.chat_buffer = ""
 
-    # -----------------------------
-    # UI
-    # -----------------------------
+    # CHAT
+
     with st.expander("💬 Ask questions about your data"):
         for msg in st.session_state.chat_history:
             role = "You" if msg["role"] == "user" else "AI"

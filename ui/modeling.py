@@ -26,25 +26,23 @@ def render_modeling_stage():
     </h1>
     """, unsafe_allow_html=True)
 
-    # ---------------------------------------------
+
     # Load required session data
-    # ---------------------------------------------
+
     df = st.session_state.df
     profile_df = st.session_state.profile_df
     profiler = DataProfiler()
 
-    # ---------------------------------------------
     # Session defaults (safe initialization)
-    # ---------------------------------------------
+
     if "cleaned_df" not in st.session_state:
         st.session_state.cleaned_df = None
 
     if "cleaning_summary" not in st.session_state:
         st.session_state.cleaning_summary = {}
 
-    # =================================================
     # PART 1 — COLUMN CLEANSING
-    # =================================================
+
     st.subheader("1️ Column Cleansing (Remove Bad Features)")
 
     drop_recommendations = profiler.recommend_drops(df, profile_df)
@@ -67,9 +65,9 @@ def render_modeling_stage():
         default=default_drops
     )
 
-    # =================================================
+
     # PART 2 — ROW CLEANSING
-    # =================================================
+
     st.subheader("2️ Row Cleansing (Remove Bad Records)")
 
     row_issues = profiler.detect_row_issues(df)
@@ -92,16 +90,16 @@ def render_modeling_stage():
                 if st.checkbox("Remove rows with missing values"):
                     row_operations.append("missing")
 
-    # =================================================
+
     # PART 3 — ANALYTICS LOGIC DEFINITION
-    # =================================================
+
     st.markdown("---")
     st.subheader("3️ Define Analytics Logic")
 
     # Columns that survive column cleansing
     remaining_cols = [c for c in df.columns if c not in cols_to_drop]
 
-    # ---- Identify numeric & date columns
+    # Identify numeric & date columns
     numeric_cols = profile_df[
         (profile_df["Detected Type"] == "numeric") &
         (profile_df["Column"].isin(remaining_cols))
@@ -112,7 +110,7 @@ def render_modeling_stage():
         (profile_df["Column"].isin(remaining_cols))
     ]["Column"].tolist()
 
-    # ---- Ignore spec-like / non-business metrics
+    # Ignore spec-like / non-business metrics
     ignore_keywords = [
         "id", "index", "code", "isbn",
         "ram", "rom", "storage", "battery",
@@ -154,9 +152,9 @@ def render_modeling_stage():
         default=date_cols
     )
 
-    # =================================================
+
     # PART 4 — PREVIEW & SAVE MODEL CONFIG
-    # =================================================
+
     st.markdown("---")
 
     if st.button("🔍 Preview Cleaned Data"):
@@ -164,17 +162,17 @@ def render_modeling_stage():
             st.error("❌ Please select at least one Measure and one Dimension.")
             return
 
-        # ---- Apply column cleansing
+        # Apply column cleansing
         final_df = df.drop(columns=cols_to_drop)
 
-        # ---- Apply row cleansing
+        # Apply row cleansing
         if "duplicates" in row_operations:
             final_df = final_df.drop_duplicates()
 
         if "missing" in row_operations:
             final_df = final_df.dropna()
 
-        # ---- Persist results
+        #  Persist results
         st.session_state.cleaned_df = final_df
 
         st.session_state.cleaning_summary = {
@@ -196,6 +194,6 @@ def render_modeling_stage():
             ]
         }
 
-        # ---- Move to preview stage
+        #Move to preview stage
         st.session_state.app_stage = "preview"
         st.rerun()

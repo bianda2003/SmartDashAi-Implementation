@@ -16,9 +16,9 @@ class ChatEngine:
         question = user_input.lower()
 
         try:
-            # --------------------------------
+
             # PROFIT QUESTIONS
-            # --------------------------------
+
             if "profit" in question:
                 if "laptop" in question:
                     total = (
@@ -31,16 +31,10 @@ class ChatEngine:
                 total_profit = self.df["Profit"].sum()
                 return f"💰 Total profit is {total_profit:,.2f}"
 
-            # --------------------------------
-            # SALES QUESTIONS
-            # --------------------------------
             if "sales" in question:
                 total_sales = self.df["Sales_Amount"].sum()
                 return f"📊 Total sales amount is {total_sales:,.2f}"
 
-            # --------------------------------
-            # TOP PRODUCTS
-            # --------------------------------
             if "top" in question and "product" in question:
                 top = (
                     self.df.groupby("Product")["Profit"]
@@ -50,9 +44,6 @@ class ChatEngine:
                 )
                 return "🏆 Top products by profit:\n" + top.to_string()
 
-            # --------------------------------
-            # FALLBACK
-            # --------------------------------
             return (
                 "🤔 I can help with questions about:\n"
                 "- Profit\n"

@@ -8,9 +8,6 @@ from sklearn.metrics import mean_absolute_error, r2_score
 from sklearn.ensemble import RandomForestRegressor
 
 
-# =========================================================
-# EXISTING CLASS (KEEP FOR YOUR SYSTEM)
-# =========================================================
 class MLEngine:
     def __init__(self, df, data_model):
         self.df = df
@@ -54,13 +51,9 @@ class MLEngine:
         return model.predict(X_latest)[0]
 
 
-# =========================================================
-# SMART FORECASTING HELPERS (FOR REPORT STAGE)
-# =========================================================
 
-# ----------------------------------------
-# PREPROCESS (SAFE - NO LEAKAGE)
-# ----------------------------------------
+# SMART FORECASTING
+
 def prepare_ml_data(df, target):
     df = df.copy().dropna(subset=[target])
 
@@ -93,9 +86,9 @@ def prepare_ml_data(df, target):
     return X, y
 
 
-# ----------------------------------------
+
 # HEALTH CHECK
-# ----------------------------------------
+
 def check_data_health(X):
     if len(X) < 30:
         return {"valid": False, "reason": "Too few rows"}
@@ -106,9 +99,9 @@ def check_data_health(X):
     return {"valid": True}
 
 
-# ----------------------------------------
-# EVALUATION (FIXED - TIME SERIES SAFE)
-# ----------------------------------------
+
+# EVALUATION 
+
 def evaluate_model(X, y):
 
     # ✅ TIME-BASED SPLIT (NO SHUFFLE → NO LEAKAGE)
@@ -154,9 +147,6 @@ def evaluate_model(X, y):
     }
 
 
-# ----------------------------------------
-# FINAL MODEL (AFTER USER CONFIRM)
-# ----------------------------------------
 def train_final_model(X, y):
     model = RandomForestRegressor(random_state=42)
     model.fit(X, y)

@@ -35,7 +35,7 @@ class ForecastEngine:
             .reset_index()
         )
         
-        # --- ENHANCEMENT: Feature Engineering ---
+        # Feature Engineering 
         # Add Month and Year features to help the model learn seasonality
         ts_df['month'] = ts_df[self.date_col].dt.month
         ts_df['year_index'] = np.arange(len(ts_df)) # Helps capture long-term trend
@@ -60,9 +60,9 @@ class ForecastEngine:
 
         health = None
 
-        # ----------------------------------
+
 # DATA HEALTH GATING
-# ----------------------------------
+
         try:
             from core.analytics_engine import AnalyticsEngine
 
@@ -108,7 +108,7 @@ class ForecastEngine:
         X_train, X_test = X[:split_idx], X[split_idx:]
         y_train, y_test = y[:split_idx], y[split_idx:]
 
-        # --- ENHANCEMENT: Optimized MLP Parameters ---
+        # ENHANCEMENT: Optimized MLP Parameters
         model = MLPRegressor(
             hidden_layer_sizes=(100, 50), # Larger first layer
             activation="relu",
@@ -122,7 +122,7 @@ class ForecastEngine:
         )
         model.fit(X_train, y_train)
 
-        # --- ENHANCEMENT: Iterative Forecasting with Context ---
+        # ENHANCEMENT: Iterative Forecasting with Context ---
         future_predictions = []
         last_window = scaled_target[-self.look_back:].flatten()
         last_year_idx = scaled_features[-1, 1]
@@ -164,13 +164,7 @@ class ForecastEngine:
         ts_df["Type"] = "Historical"
         combined_df = pd.concat([ts_df[[self.date_col, self.target_col, "Type"]], future_df])
 
-        # Confidence Logic remains similar...
-        # ... [Keep your existing metadata logic here] ...
-
-        # --- RE-ADDED METADATA LOGIC ---
-        # -----------------------------
-# MODEL ERROR CONFIDENCE
-# -----------------------------
+  
         if smape_val > 25:
             confidence = "Low"
         elif smape_val > 15:
@@ -180,9 +174,7 @@ class ForecastEngine:
 
         explanation = "Based on model error."
 
-        # -----------------------------
-        # DATA STABILITY ADJUSTMENT
-        # -----------------------------
+
         try:
             from core.analytics_engine import AnalyticsEngine
             analytics = AnalyticsEngine(self.df, None)

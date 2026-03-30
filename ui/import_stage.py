@@ -34,12 +34,7 @@ def render_import_stage():
     if uploaded_file:
         load_user_data(uploaded_file)
 
-        
-
-
-# -------------------------------------------------
-# Helpers
-# -------------------------------------------------
+        #Helpers
 
 def load_user_data(uploaded_file):
     """

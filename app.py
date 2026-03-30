@@ -8,29 +8,20 @@ from ui.report import render_report_stage
 
 
 
-# ================================
-# PAGE CONFIG (ONLY HERE)
-# ================================
 st.set_page_config(
     page_title="SmartDashAI",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# ================================
-# GLOBAL STYLES (ONLY HERE)
-# ================================
 
 
-# ================================
-# SESSION STATE
-# ================================
+
 if "app_stage" not in st.session_state:
     st.session_state.app_stage = "landing"
 
-# ================================
 # ROUTER
-# ================================
+
 stage = st.session_state.app_stage
 
 if stage == "landing":

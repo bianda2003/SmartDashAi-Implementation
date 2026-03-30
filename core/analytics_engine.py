@@ -26,9 +26,9 @@ class AnalyticsEngine:
                 kpis[name] = None
         return kpis
 
-    # ------------------------------------------------
+    
     # CORE AGGREGATION LOGIC (INTERNAL)
-    # ------------------------------------------------
+  
     def _aggregate_measure(self, df, measure_name):
         """
         Helper to apply the correct aggregation based on model metadata.
@@ -66,9 +66,9 @@ class AnalyticsEngine:
 
         return df[col].sum()
 
-    # ------------------------------------------------
+   
     # TIME INTELLIGENCE METRICS
-    # ------------------------------------------------
+  
     def compute_ytd(self, df, date_col, measure_name):
         """Calculates Year-to-Date using dynamic aggregation."""
         df = df.copy()
@@ -97,9 +97,9 @@ class AnalyticsEngine:
         ]
         return self._aggregate_measure(mtd_df, measure_name)
 
-    # ------------------------------------------------
+   
     # PERIOD OVER PERIOD GROWTH (TREND)
-    # ------------------------------------------------
+  
     def compute_ytd_comparison(self, df, date_col, measure_name):
         """
         Calculates Monthly YTD vs Previous YTD for a true trend curve.
@@ -133,9 +133,9 @@ class AnalyticsEngine:
         
         return comparison_df.melt(id_vars="Month", var_name="Year", value_name="Value")
 
-    # ------------------------------------------------
+   
     # GROUPING & VISUALIZATION DATA
-    # ------------------------------------------------
+  
     def get_grouping_data(self, df, dimension, measure):
         if dimension not in df.columns: 
             raise ValueError(f"Dimension '{dimension}' does not exist.")
@@ -172,9 +172,9 @@ class AnalyticsEngine:
         grouped.columns = [dimension, name_x, name_y]
         
         return grouped, name_x, name_y
-        # ------------------------------------------------
-    # CUMULATIVE TREND (AUTO YoY / MoM)
-    # ------------------------------------------------
+  
+    # CUMULATIVE TREND (YoY / MoM)
+  
     def compute_cumulative_trend(self, df, date_col, measure_name):
         """
         Returns cumulative trend data with auto-switch:
@@ -194,9 +194,9 @@ class AnalyticsEngine:
         years = df[date_col].dt.year.unique()
         measure_col = self.model.measures[measure_name]["column"]
 
-        # ---------------------------
+    
         # CASE 1: Year-over-Year
-        # ---------------------------
+   
         if len(years) >= 2:
             df["Period"] = df[date_col].dt.month
             df["Year"] = df[date_col].dt.year
@@ -214,9 +214,9 @@ class AnalyticsEngine:
 
             return grouped, "YoY"
 
-        # ---------------------------
+  
         # CASE 2: Month-over-Month
-        # ---------------------------
+
         df["Period"] = df[date_col].dt.to_period("M").astype(str)
 
         grouped = (
@@ -230,9 +230,9 @@ class AnalyticsEngine:
 
         return grouped, "MoM"
     
-# ------------------------------------------------
+
     # CUMULATIVE TREND (AUTO YoY / MoM)
-    # ------------------------------------------------
+
     def compute_cumulative_trend(self, df, date_col, measure_name):
         """
         Returns cumulative trend data with auto-switch:
@@ -252,9 +252,9 @@ class AnalyticsEngine:
         years = df[date_col].dt.year.unique()
         measure_col = self.model.measures[measure_name]["column"]
 
-        # ---------------------------
+       
         # CASE 1: Year-over-Year
-        # ---------------------------
+    
         if len(years) >= 2:
             df["Period"] = df[date_col].dt.month
             df["Year"] = df[date_col].dt.year
@@ -272,9 +272,9 @@ class AnalyticsEngine:
 
             return grouped, "YoY"
 
-        # ---------------------------
+  
         # CASE 2: Month-over-Month
-        # ---------------------------
+
         df["Period"] = df[date_col].dt.to_period("M").astype(str)
 
         grouped = (
@@ -288,9 +288,9 @@ class AnalyticsEngine:
 
         return grouped, "MoM"
 
-    # ------------------------------------------------
+
     # TIME KPIs (YTD / MTD) — REUSES TREND LOGIC
-    # ------------------------------------------------
+   
     def compute_time_kpis(self, df, date_col, measure_name):
         """
         Returns YTD and MTD values using the same
@@ -303,9 +303,9 @@ class AnalyticsEngine:
         if trend_df is None or trend_df.empty:
             return None, None
 
-        # ---------------------------
-        # YoY case → use latest year
-        # ---------------------------
+
+        # YoY case - use latest year
+
         if trend_type == "YoY":
             latest_year = trend_df["Year"].max()
 
@@ -326,9 +326,8 @@ class AnalyticsEngine:
 
             return ytd_value, mtd_value
 
-        # ---------------------------
         # MoM case → single year
-        # ---------------------------
+
         ytd_value = trend_df["Cumulative Value"].iloc[-1]
 
         if len(trend_df) > 1:
@@ -342,12 +341,9 @@ class AnalyticsEngine:
         return ytd_value, mtd_value
     
 
-        # ------------------------------------------------
+
     # TREND STABILITY (0–1)
-    # ------------------------------------------------
-        # ------------------------------------------------
-    # TREND STABILITY (0–1) — FIXED
-    # ------------------------------------------------
+
     def compute_trend_stability(self, df, date_col, measure_name):
         """
         Measures how stable period-to-period growth is.
@@ -360,9 +356,6 @@ class AnalyticsEngine:
         if trend_df is None or trend_df.empty:
             return 0.0
 
-        # ----------------------------------
-        # YoY case → compute deltas per year
-        # ----------------------------------
         if trend_type == "YoY":
             deltas = []
             for _, g in trend_df.groupby("Year"):
@@ -371,9 +364,7 @@ class AnalyticsEngine:
 
             deltas = pd.Series(deltas)
 
-        # ----------------------------------
-        # MoM case → normal diff
-        # ----------------------------------
+
         else:
             deltas = trend_df["Cumulative Value"].diff().dropna()
 
@@ -384,11 +375,8 @@ class AnalyticsEngine:
 
         stability = 1 - min(volatility, 1.0)
         return round(stability, 3)
+  
 
-    
-        # ------------------------------------------------
-    # SEASONALITY STRENGTH (0–1)
-    # ------------------------------------------------
     def compute_seasonality_strength(self, df, date_col, measure_name):
         """
         Measures how strong repeating monthly patterns are.
@@ -417,9 +405,8 @@ class AnalyticsEngine:
         return round(min(strength, 1.0), 3)
 
 
-        # ------------------------------------------------
     # DATA SUFFICIENCY (0–1)
-    # ------------------------------------------------
+
     def compute_data_sufficiency(self, df, date_col):
         """
         Measures if enough time periods exist for forecasting.
@@ -437,9 +424,9 @@ class AnalyticsEngine:
             return 0.6
         else:
             return 1.0
-    # ------------------------------------------------
-    # DATA HEALTH SCORE (0–100)
-    # ------------------------------------------------
+
+    # DATA HEALTH SCORE 
+
     def compute_data_health(self, df, date_col, measure_name):
         """
         Combines stability, seasonality, and sufficiency
@@ -474,9 +461,7 @@ class AnalyticsEngine:
             "sufficiency": sufficiency
         }
 
-        # ------------------------------------------------
-    # TREND STABILITY / VOLATILITY
-    # ------------------------------------------------
+
     def compute_trend_volatility(self, df, date_col, measure_name):
         """
         Measures volatility of cumulative trend.

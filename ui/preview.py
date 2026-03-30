@@ -8,9 +8,7 @@ def render_preview_stage():
     STAGE 2.5 — CLEANED DATA PREVIEW & CONFIRMATION
     """
 
-    # ============================================
-    # 🔥 FORCE SCROLL TO TOP (BEFORE ANY UI)
-    # ============================================
+    
     st.markdown('<div id="top"></div>', unsafe_allow_html=True)
 
     st.markdown("""
@@ -25,9 +23,7 @@ def render_preview_stage():
     </script>
     """, unsafe_allow_html=True)
 
-    # ============================================
-    # 🎨 CSS
-    # ============================================
+
     st.markdown("""
     <style>
 
@@ -45,25 +41,25 @@ def render_preview_stage():
     </style>
     """, unsafe_allow_html=True)
 
-    # ============================================
+  
     # TITLE
-    # ============================================
+
     st.markdown("""
     <div class="title-main" style="margin-top:-55px;">
         Cleaned Data <span class="purple-text">Preview</span>
     </div>
     """, unsafe_allow_html=True)
 
-    # ---------------------------------------------
+
     # Load session data
-    # ---------------------------------------------
+
     df_clean = st.session_state.cleaned_df
     summary = st.session_state.cleaning_summary
     temp_cfg = st.session_state.temp_model_config
 
-    # =================================================
+
     # PART 1 — CLEANING SUMMARY
-    # =================================================
+
     st.subheader("🧹 Cleaning Summary")
 
     c1, c2, c3, c4 = st.columns(4)
@@ -109,9 +105,9 @@ def render_preview_stage():
     st.markdown("**Row Operations Applied:**")
     st.write(summary["row_operations"] or "None")
 
-    # =================================================
-    # PART 2 — DATA PREVIEW (FIXED)
-    # =================================================
+
+    # PART 2 — DATA PREVIEW 
+
     st.markdown("""
     <h3>📄 Data <span class="purple-text">Preview</span> (First 50 Rows)</h3>
     """, unsafe_allow_html=True)
@@ -124,9 +120,9 @@ def render_preview_stage():
 
     placeholder.dataframe(df_clean.head(50), use_container_width=True)
 
-    # =================================================
+
     # PART 3 — VALIDATION
-    # =================================================
+
     if df_clean.empty:
         st.error("❌ Cleaned data is empty. Please go back and adjust cleaning rules.")
         st.stop()
@@ -137,9 +133,9 @@ def render_preview_stage():
             "Analytics and forecasting accuracy may be limited."
         )
 
-    # =================================================
+
     # PART 4 — ACTIONS
-    # =================================================
+
     st.markdown("---")
 
     col_back, col_next = st.columns(2)
@@ -154,9 +150,9 @@ def render_preview_stage():
             build_data_model(df_clean, temp_cfg)
 
 
-# -------------------------------------------------
+
 # HELPER
-# -------------------------------------------------
+
 def build_data_model(df_clean, cfg):
 
     builder = DataModelBuilder()
